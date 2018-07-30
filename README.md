@@ -1,2 +1,2 @@
 # AndroidQuiz
-This is an Android Quiz.
+This is an Android App - Quiz Game.
