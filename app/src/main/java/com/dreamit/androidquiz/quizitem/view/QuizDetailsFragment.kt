@@ -17,6 +17,8 @@ import com.dreamit.androidquiz.net.RestClient
 import com.dreamit.androidquiz.quizitem.QuizDetailsContract
 import com.dreamit.androidquiz.quizitem.model.QuizDetails
 import com.dreamit.androidquiz.quizitem.presenter.QuizDetailsPresenter
+import com.squareup.picasso.Picasso
+import kotlinx.android.synthetic.main.fragment_quiz_details.*
 
 class QuizDetailsFragment : Fragment(), QuizDetailsContract.View {
 
@@ -35,7 +37,6 @@ class QuizDetailsFragment : Fragment(), QuizDetailsContract.View {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initPresenter()
-        initViews()
 
         presenter.getQuizDetails(quizId)
     }
@@ -48,12 +49,27 @@ class QuizDetailsFragment : Fragment(), QuizDetailsContract.View {
         quizDetailsRepository = QuizDetailsRepository(localQuizDetailsRepository, remoteQuizDetailsRepository)
     }
 
-    private fun initViews() {
-
-    }
-
     override fun showQuizDetails(quizDetails: QuizDetails) {
-        Toast.makeText(context, "Test test", Toast.LENGTH_SHORT).show()
+        tv_quiz_details_name.text = quizDetails.title
+        quizDetails.category?.let {
+            tv_quiz_details_category.text = it.name
+        }
+        tv_quiz_details_description.text = quizDetails.content
+
+        quizDetails.mainPhoto?.let {
+            Picasso.get()
+                    .load(it.url)
+                    .fit()
+                    .centerCrop()
+                    .into(iv_quiz_details_image)
+        }
+
+        tv_start_quiz.setOnClickListener {
+            Toast.makeText(context, "Zaczynamy!", Toast.LENGTH_SHORT).show()
+        }
+        tv_go_back_to_quiz.setOnClickListener {
+            Toast.makeText(context, "Wracamy!", Toast.LENGTH_SHORT).show()
+        }
     }
 
     override fun showError(error: String) {
