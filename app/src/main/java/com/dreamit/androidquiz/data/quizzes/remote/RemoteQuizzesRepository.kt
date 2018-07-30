@@ -9,7 +9,7 @@ import io.reactivex.Observable
 class RemoteQuizzesRepository(private val remoteRepository: QuizService) : QuizzesDataSource {
 
     override fun getQuizzes(): Observable<Quizzes> =
-            remoteRepository.getQuizzes("0", "100")
+            remoteRepository.getQuizzes("0", "5")
                     .onErrorReturn {
                         Log.e(TAG, it.message)
                         Quizzes()
