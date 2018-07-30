@@ -38,7 +38,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
     }
 
-    private fun loadFragment(fragment: Fragment, addToBackStack: Boolean) {
+    fun loadFragment(fragment: Fragment, addToBackStack: Boolean) {
         if (window.currentFocus != null) {
             val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             imm.hideSoftInputFromWindow(window.currentFocus!!.windowToken, 0)

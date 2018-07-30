@@ -9,7 +9,7 @@ import io.reactivex.Observable
 class RemoteQuizzesRepository(private val remoteRepository: QuizService) : QuizzesDataSource {
 
     override fun getQuizzes(): Observable<Quizzes> =
-            remoteRepository.getQuizzes("0", "5")
+            remoteRepository.getQuizzes("0", "100")
                     .onErrorReturn {
                         Log.e(TAG, it.message)
                         Quizzes()
@@ -17,6 +17,10 @@ class RemoteQuizzesRepository(private val remoteRepository: QuizService) : Quizz
 
     override fun getNextQuizzes(page: Int): Observable<Quizzes> =
             remoteRepository.getQuizzes(page.toString(), "100")
+                    .onErrorReturn {
+                        Log.e(TAG, it.message)
+                        Quizzes()
+                    }
 
     override fun saveQuizzes(quizzes: Quizzes) {
         Log.e(TAG, "Not implemented!")

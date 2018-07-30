@@ -7,6 +7,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.dreamit.androidquiz.MainActivity
 import com.dreamit.androidquiz.QuizApp
 import com.dreamit.androidquiz.R
 import com.dreamit.androidquiz.data.quizzes.QuizzesRepository
@@ -14,19 +15,20 @@ import com.dreamit.androidquiz.data.quizzes.local.LocalQuizzesRepository
 import com.dreamit.androidquiz.data.quizzes.remote.RemoteQuizzesRepository
 import com.dreamit.androidquiz.net.ConfigEndpoints
 import com.dreamit.androidquiz.net.RestClient
+import com.dreamit.androidquiz.quizitem.view.QuizDetailsFragment
 import com.dreamit.androidquiz.quizlist.QuizzesContract
 import com.dreamit.androidquiz.quizlist.adapters.QuizzesAdapter
 import com.dreamit.androidquiz.quizlist.model.Quizzes
 import com.dreamit.androidquiz.quizlist.presenter.QuizzesPresenter
 import kotlinx.android.synthetic.main.fragment_quizzes.*
 
-class QuizzesFragment : Fragment(), QuizzesContract.View {
+class QuizzesFragment : Fragment(), QuizzesContract.View, QuizzesAdapter.OnQuizzesAdapterListener {
 
     private lateinit var quizRepo: QuizzesRepository
     private val presenter: QuizzesContract.Presenter by lazy {
         QuizzesPresenter(quizRepo, this)
     }
-    private val quizzesAdapter = QuizzesAdapter()
+    private val quizzesAdapter = QuizzesAdapter(this)
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -64,6 +66,15 @@ class QuizzesFragment : Fragment(), QuizzesContract.View {
 
     override fun showError(error: String) {
         Log.e(TAG, error)
+    }
+
+    override fun onQuizClicked(id: Long) {
+        activity?.let {
+            QuizDetailsFragment().apply {
+                quizId = id
+                (it as MainActivity).loadFragment(this, true)
+            }
+        }
     }
 
     companion object {

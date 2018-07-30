@@ -9,7 +9,9 @@ import com.dreamit.androidquiz.quizlist.model.QuizItem
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.quizzes_item.view.*
 
-class QuizzesAdapter : RecyclerView.Adapter<QuizzesAdapter.ViewHolder>() {
+class QuizzesAdapter(
+        private val listener: QuizzesAdapter.OnQuizzesAdapterListener
+) : RecyclerView.Adapter<QuizzesAdapter.ViewHolder>() {
 
     private var quizzes: List<QuizItem> = listOf()
 
@@ -17,7 +19,7 @@ class QuizzesAdapter : RecyclerView.Adapter<QuizzesAdapter.ViewHolder>() {
         val itemView = LayoutInflater.from(parent.context)
                 .inflate(R.layout.quizzes_item, parent, false)
 
-        return ViewHolder(itemView, quizzes)
+        return ViewHolder(itemView, quizzes, listener)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
@@ -35,8 +37,13 @@ class QuizzesAdapter : RecyclerView.Adapter<QuizzesAdapter.ViewHolder>() {
         }
     }
 
-    class ViewHolder(view: View, private val quizzes: List<QuizItem>) : RecyclerView.ViewHolder(view) {
+    class ViewHolder(
+            view: View,
+            private val quizzes: List<QuizItem>,
+            private val listener: OnQuizzesAdapterListener
+    ) : RecyclerView.ViewHolder(view) {
 
+        private val itemCl = view.cl_quizzes_item
         private val nameTv = view.tv_quizzes_item_name
         private val imageIv = view.iv_quizzes_item_image
         private val sponsoredTv = view.tv_quizzes_item_sponsored
@@ -56,6 +63,13 @@ class QuizzesAdapter : RecyclerView.Adapter<QuizzesAdapter.ViewHolder>() {
                 }
             }
             sponsoredTv.visibility = if (quiz.sponsored) View.VISIBLE else View.GONE
+            itemCl.setOnClickListener {
+                listener.onQuizClicked(quiz.id)
+            }
         }
+    }
+
+    interface OnQuizzesAdapterListener {
+        fun onQuizClicked(id: Long)
     }
 }
