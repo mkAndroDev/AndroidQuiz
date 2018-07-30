@@ -7,7 +7,6 @@ import io.realm.annotations.PrimaryKey
 
 open class MainPhoto : RealmObject() {
 
-    @PrimaryKey
     @Expose
     @SerializedName("media_id")
     var id: Long = 0

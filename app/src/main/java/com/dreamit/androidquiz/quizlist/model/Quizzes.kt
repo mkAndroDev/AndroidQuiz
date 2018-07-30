@@ -17,4 +17,7 @@ open class Quizzes : RealmObject() {
     @SerializedName("items")
     var items: RealmList<QuizItem> = RealmList()
 
+    companion object {
+        const val QUIZZES_PAGE_NAME = "page"
+    }
 }

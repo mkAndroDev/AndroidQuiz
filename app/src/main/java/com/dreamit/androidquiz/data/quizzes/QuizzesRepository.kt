@@ -4,6 +4,8 @@ import com.dreamit.androidquiz.data.quizzes.local.LocalQuizzesRepository
 import com.dreamit.androidquiz.data.quizzes.remote.RemoteQuizzesRepository
 import com.dreamit.androidquiz.quizlist.model.Quizzes
 import io.reactivex.Observable
+import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.launch
 
 class QuizzesRepository(
         private val localQuizzesRepository: LocalQuizzesRepository,
@@ -11,15 +13,21 @@ class QuizzesRepository(
 ) : QuizzesDataSource {
 
     override fun getQuizzes(): Observable<Quizzes> {
-        return Observable.merge(
-                remoteQuizzesRepository.getQuizzes(),
-                localQuizzesRepository.getQuizzes())
+        return Observable.concat(
+                localQuizzesRepository.getQuizzes(),
+                remoteQuizzesRepository.getQuizzes().doOnNext {
+                    launch(UI) {
+                        if (it.items.isNotEmpty())
+                            localQuizzesRepository.saveQuizzes(it)
+                    }
+                }
+        )
     }
 
     override fun getNextQuizzes(page: Int): Observable<Quizzes> {
         return Observable.merge(
-                localQuizzesRepository.getNextQuizzes(page),
-                remoteQuizzesRepository.getNextQuizzes(page))
+                remoteQuizzesRepository.getNextQuizzes(page),
+                localQuizzesRepository.getNextQuizzes(page))
     }
 
     override fun saveQuizzes(quizzes: Quizzes) {
