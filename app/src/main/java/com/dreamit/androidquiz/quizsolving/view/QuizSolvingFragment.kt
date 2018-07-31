@@ -70,9 +70,11 @@ class QuizSolvingFragment : Fragment(), QuizSolvingContract.View, QuizAnswersAda
         this.quizSolve = quizSolve
         if (status == STATUS_NEW) {
             showQuizAnswer(quizSolve.quizDetails!!.questions.first()!!)
+            quizSolve.userAnswers.clear()
+            presenter.saveQuizSolve(quizSolve)
         } else {
             val indexOfLastChecked = quizSolve.userAnswers.size
-            showQuizAnswer(quizSolve.quizDetails!!.questions[indexOfLastChecked + 1]!!)
+            showQuizAnswer(quizSolve.quizDetails!!.questions[indexOfLastChecked]!!)
         }
     }
 
