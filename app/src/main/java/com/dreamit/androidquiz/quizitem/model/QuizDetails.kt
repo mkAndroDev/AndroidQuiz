@@ -7,9 +7,11 @@ import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 import io.realm.RealmList
 import io.realm.RealmObject
+import io.realm.annotations.PrimaryKey
 
 open class QuizDetails : RealmObject() {
 
+    @PrimaryKey
     @Expose
     @SerializedName("id")
     var id: Long = 0
@@ -85,7 +87,6 @@ open class QuizDetails : RealmObject() {
     @Expose
     @SerializedName("sponsoredResults")
     var sponsoredResults: SponsoredResults? = null
-    var isStarted = false
 
     companion object {
         const val QUIZ_DETAILS_FIELD_ID = "id"

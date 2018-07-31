@@ -25,5 +25,4 @@ open class Question : RealmObject() {
     @Expose
     @SerializedName("order")
     var order = 0
-    var userAnswer: Int? = null
 }

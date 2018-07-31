@@ -20,6 +20,5 @@
 
     <string name="quiz_solving_name_label">Pytanie:</string>
     <string name="quiz_solving_answers_label">Odpowiedzi:</string>
-    <string name="quiz_solving_next_question">Następne pytanie</string>
-    <string name="quiz_solving_finish_question">Zakończ quiz!</string>
+    <string name="quiz_solving_finish_rate">Poprawnych odpowiedzi:</string>
 </resources>

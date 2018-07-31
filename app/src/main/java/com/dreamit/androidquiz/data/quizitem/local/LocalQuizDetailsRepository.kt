@@ -31,8 +31,8 @@ class LocalQuizDetailsRepository(private val localStorage: Realm) : QuizDetailsD
             }
 
     override fun saveQuizDetails(quiz: QuizDetails) {
-        localStorage.executeTransactionAsync {
-            it.insertOrUpdate(quiz)
+        localStorage.executeTransaction {
+            it.copyToRealmOrUpdate(quiz)
         }
     }
 }

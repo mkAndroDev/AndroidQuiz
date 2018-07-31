@@ -87,6 +87,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="@string/quiz_details_description_go_back"
+            android:visibility="gone"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tv_quiz_details_description"
             app:layout_constraintWidth_default="percent"

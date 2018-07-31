@@ -8,29 +8,31 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import com.dreamit.androidquiz.MainActivity
 import com.dreamit.androidquiz.QuizApp
 import com.dreamit.androidquiz.R
-import com.dreamit.androidquiz.data.quizitem.QuizDetailsRepository
-import com.dreamit.androidquiz.data.quizitem.local.LocalQuizDetailsRepository
-import com.dreamit.androidquiz.data.quizitem.remote.RemoteQuizDetailsRepository
-import com.dreamit.androidquiz.net.ConfigEndpoints
-import com.dreamit.androidquiz.net.RestClient
+import com.dreamit.androidquiz.data.quizSolve.QuizSolveRepository
+import com.dreamit.androidquiz.data.quizSolve.local.LocalQuizSolveRepository
 import com.dreamit.androidquiz.quizitem.model.Question
-import com.dreamit.androidquiz.quizitem.model.QuizDetails
+import com.dreamit.androidquiz.quizlist.view.QuizzesFragment
 import com.dreamit.androidquiz.quizsolving.QuizSolvingContract
 import com.dreamit.androidquiz.quizsolving.adapter.QuizAnswersAdapter
+import com.dreamit.androidquiz.quizsolving.model.QuizSolve
+import com.dreamit.androidquiz.quizsolving.model.UserAnswer
 import com.dreamit.androidquiz.quizsolving.presenter.QuizSolvingPresenter
+import com.dreamit.androidquiz.utils.QuizRatesUtils
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.fragment_quiz_solving.*
 
 class QuizSolvingFragment : Fragment(), QuizSolvingContract.View, QuizAnswersAdapter.OnQuizAnswerAdapterListener {
 
     var quizId: Long = 0
-    private lateinit var quizDetailsRepository: QuizDetailsRepository
+    var status: Int = 0
+    private lateinit var quizSolveRepository: QuizSolveRepository
     private val presenter: QuizSolvingContract.Presenter by lazy {
-        QuizSolvingPresenter(quizDetailsRepository, this)
+        QuizSolvingPresenter(quizSolveRepository, this)
     }
-    private lateinit var quizSolve: QuizDetails
+    private lateinit var quizSolve: QuizSolve
     private var quizAnswersAdapter = QuizAnswersAdapter(this)
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -56,36 +58,37 @@ class QuizSolvingFragment : Fragment(), QuizSolvingContract.View, QuizAnswersAda
     }
 
     private fun initPresenter() {
-        val quizDetailsService = RestClient(ConfigEndpoints.BASE_URL).setupRestClient()
-        val remoteQuizDetailsRepository = RemoteQuizDetailsRepository(quizDetailsService)
         val app = activity?.application as QuizApp
-        val localQuizDetailsRepository = LocalQuizDetailsRepository(app.realm)
-        quizDetailsRepository = QuizDetailsRepository(localQuizDetailsRepository, remoteQuizDetailsRepository)
+        val localRepository = LocalQuizSolveRepository(app.realm)
+        quizSolveRepository = QuizSolveRepository(localRepository)
     }
 
-    override fun showQuizSolving(quizDetails: QuizDetails) {
+    override fun showQuizSolving(quizSolve: QuizSolve) {
         pb_quiz_solving.apply {
-            max = quizDetails.questions.size
+            max = quizSolve.quizDetails?.questions?.size ?: 0
         }
-        quizSolve = quizDetails
-        showQuizAnswer(quizSolve.questions.first {
-            it.userAnswer == null
-        })
+        this.quizSolve = quizSolve
+        if (status == STATUS_NEW) {
+            showQuizAnswer(quizSolve.quizDetails!!.questions.first()!!)
+        } else {
+            val indexOfLastChecked = quizSolve.userAnswers.size
+            showQuizAnswer(quizSolve.quizDetails!!.questions[indexOfLastChecked + 1]!!)
+        }
     }
 
     private fun showNextQuestion() {
         val answersIndex = pb_quiz_solving.progress
 
-        if (pb_quiz_solving.progress == quizSolve.questions.lastIndex + 1) {
+        if (pb_quiz_solving.progress == quizSolve.quizDetails!!.questions.lastIndex + 1) {
             showFinish()
         } else {
-            showQuizAnswer(quizSolve.questions[answersIndex]!!)
+            showQuizAnswer(quizSolve.quizDetails!!.questions[answersIndex]!!)
         }
     }
 
     private fun showQuizAnswer(question: Question) {
         pb_quiz_solving.apply {
-            progress = quizSolve.questions.indexOf(question) + 1
+            progress = quizSolve.quizDetails!!.questions.indexOf(question) + 1
         }
         tv_quiz_solving_name.text = if (question.text.isNotEmpty()) question.text else question.text
 
@@ -108,15 +111,28 @@ class QuizSolvingFragment : Fragment(), QuizSolvingContract.View, QuizAnswersAda
     private fun showFinish() {
         var validQuestionsCount = 0
 
-        quizSolve.questions.forEach { question ->
-            question.userAnswer?.let {
-                if (question.answers[it]?.isCorrect == 1) {
-                    validQuestionsCount++
-                }
+        quizSolve.userAnswers.forEach {
+
+            val validAnswer = quizSolve.quizDetails!!.questions.first { it.isValid }
+            if (it.answerId == quizSolve.quizDetails!!.questions.indexOf(validAnswer)) {
+                validQuestionsCount++
             }
         }
 
-        Toast.makeText(context, "Poprawnych odpowiedzi: $validQuestionsCount", Toast.LENGTH_SHORT).show()
+        var ratesTitle = getString(R.string.quiz_solving_finish_rate) + " $validQuestionsCount"
+        val validQuestionsAsPercent = QuizRatesUtils.getValidResultAsPercent(validQuestionsCount, quizSolve.quizDetails!!.questions.size)
+
+        quizSolve.quizDetails!!.rates.forEach {
+            if (validQuestionsAsPercent in it.from..it.to) {
+                ratesTitle += ", ${it.content}"
+            }
+        }
+        Toast.makeText(context, ratesTitle, Toast.LENGTH_SHORT).show()
+        quizSolve.userAnswers.clear()
+        presenter.saveQuizSolve(quizSolve)
+        activity?.let {
+            (it as MainActivity).loadFragment(QuizzesFragment(), false)
+        }
     }
 
     override fun showError(error: String) {
@@ -124,11 +140,17 @@ class QuizSolvingFragment : Fragment(), QuizSolvingContract.View, QuizAnswersAda
     }
 
     override fun onQuizClicked(id: Int) {
-        quizSolve.questions[pb_quiz_solving.progress - 1]?.userAnswer = id
+        quizSolve.userAnswers.add(UserAnswer().apply {
+            questionId = pb_quiz_solving.progress - 1
+            answerId = id
+        })
+        presenter.saveQuizSolve(quizSolve)
         showNextQuestion()
     }
 
     companion object {
         private val TAG = QuizSolvingFragment::class.java.simpleName
+        const val STATUS_NEW = 0
+        const val STATUS_RETURN = 1
     }
 }

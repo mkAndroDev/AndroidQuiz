@@ -1,11 +1,11 @@
 package com.dreamit.androidquiz.quizsolving
 
-import com.dreamit.androidquiz.quizitem.model.QuizDetails
+import com.dreamit.androidquiz.quizsolving.model.QuizSolve
 
 interface QuizSolvingContract {
 
     interface View {
-        fun showQuizSolving(quizDetails: QuizDetails)
+        fun showQuizSolving(quizSolve: QuizSolve)
 
         fun showError(error: String)
     }
@@ -13,7 +13,7 @@ interface QuizSolvingContract {
     interface Presenter {
         fun getQuizSolve(quizId: Long)
 
-        fun saveQuizSolve(quizDetails: QuizDetails)
+        fun saveQuizSolve(quizSolve: QuizSolve)
     }
 
 }
