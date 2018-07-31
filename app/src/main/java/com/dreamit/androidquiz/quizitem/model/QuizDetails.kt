@@ -85,6 +85,7 @@ open class QuizDetails : RealmObject() {
     @Expose
     @SerializedName("sponsoredResults")
     var sponsoredResults: SponsoredResults? = null
+    var isStarted = false
 
     companion object {
         const val QUIZ_DETAILS_FIELD_ID = "id"

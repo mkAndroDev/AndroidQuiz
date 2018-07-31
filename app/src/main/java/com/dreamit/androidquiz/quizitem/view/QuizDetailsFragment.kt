@@ -6,7 +6,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
+import com.dreamit.androidquiz.MainActivity
 import com.dreamit.androidquiz.QuizApp
 import com.dreamit.androidquiz.R
 import com.dreamit.androidquiz.data.quizitem.QuizDetailsRepository
@@ -17,6 +17,7 @@ import com.dreamit.androidquiz.net.RestClient
 import com.dreamit.androidquiz.quizitem.QuizDetailsContract
 import com.dreamit.androidquiz.quizitem.model.QuizDetails
 import com.dreamit.androidquiz.quizitem.presenter.QuizDetailsPresenter
+import com.dreamit.androidquiz.quizsolving.view.QuizSolvingFragment
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.fragment_quiz_details.*
 
@@ -65,10 +66,19 @@ class QuizDetailsFragment : Fragment(), QuizDetailsContract.View {
         }
 
         tv_start_quiz.setOnClickListener {
-            Toast.makeText(context, "Zaczynamy!", Toast.LENGTH_SHORT).show()
+            openQuizSolve()
         }
         tv_go_back_to_quiz.setOnClickListener {
-            Toast.makeText(context, "Wracamy!", Toast.LENGTH_SHORT).show()
+            openQuizSolve()
+        }
+    }
+
+    private fun openQuizSolve() {
+        activity?.let {
+            QuizSolvingFragment().apply {
+                quizId = this@QuizDetailsFragment.quizId
+                (it as MainActivity).loadFragment(this, true)
+            }
         }
     }
 

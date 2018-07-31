@@ -24,6 +24,9 @@ class QuizDetailsRepository(
                     }
             )
 
+    override fun getQuizSolve(quizId: Long): Observable<QuizDetails> =
+            localRepository.getQuizDetails(quizId)
+
     override fun saveQuizDetails(quiz: QuizDetails) {
         localRepository.saveQuizDetails(quiz)
     }

@@ -19,6 +19,11 @@ class RemoteQuizDetailsRepository(private val remoteRepository: QuizService) : Q
         Log.e(TAG, "Not implemented!")
     }
 
+    override fun getQuizSolve(quizId: Long): Observable<QuizDetails> =
+            Observable.fromCallable {
+                QuizDetails()
+            }
+
     companion object {
         private val TAG = RemoteQuizDetailsRepository::class.java.simpleName
     }

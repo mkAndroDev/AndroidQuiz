@@ -17,6 +17,13 @@ open class Question : RealmObject() {
     @SerializedName("type")
     var type = ""
     @Expose
+    @SerializedName("text")
+    var text = ""
+    @Expose
+    @SerializedName("title")
+    var title = ""
+    @Expose
     @SerializedName("order")
     var order = 0
+    var userAnswer: Int? = null
 }

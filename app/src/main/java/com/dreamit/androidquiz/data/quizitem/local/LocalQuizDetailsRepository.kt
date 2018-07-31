@@ -25,6 +25,11 @@ class LocalQuizDetailsRepository(private val localStorage: Realm) : QuizDetailsD
                 } ?: QuizDetails()
             }
 
+    override fun getQuizSolve(quizId: Long): Observable<QuizDetails> =
+            Observable.fromCallable {
+                getQuizDetailsFromDatabase(quizId)
+            }
+
     override fun saveQuizDetails(quiz: QuizDetails) {
         localStorage.executeTransactionAsync {
             it.insertOrUpdate(quiz)
