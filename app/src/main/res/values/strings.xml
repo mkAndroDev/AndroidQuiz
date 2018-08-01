@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">AndroidQuiz</string>
+    <string name="app_name">QuizApp</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="nav_header_title">Android Studio</string>
@@ -9,4 +9,17 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="quizzes_item_sponsored">Sponsorowany</string>
+
+    <string name="quiz_details_name_label">Nazwa quizu:</string>
+    <string name="quiz_details_category_label">Kategoria quizu:</string>
+    <string name="quiz_details_description_label">Opis quizu:</string>
+    <string name="quiz_details_description_go_back">Wróć do Quizu</string>
+    <string name="quiz_details_description_start">Rozpocznij Quiz</string>
+
+    <string name="quiz_solving_empty_error">Quiz jest pusty!</string>
+    <string name="quiz_solving_name_label">Pytanie:</string>
+    <string name="quiz_solving_answers_label">Odpowiedzi:</string>
+    <string name="quiz_solving_finish_rate">Poprawnych odpowiedzi:</string>
 </resources>

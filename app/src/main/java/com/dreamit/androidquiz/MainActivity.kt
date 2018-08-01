@@ -9,6 +9,7 @@ import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
 import android.view.MenuItem
 import android.view.inputmethod.InputMethodManager
+import com.dreamit.androidquiz.quizlist.view.QuizzesFragment
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 
@@ -24,7 +25,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         drawer_layout.addDrawerListener(toggle)
         toggle.syncState()
 
-        loadFragment(MainFragment(), false)
+        loadFragment(QuizzesFragment(), false)
 
         nav_view.setNavigationItemSelectedListener(this)
     }
@@ -37,7 +38,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
     }
 
-    private fun loadFragment(fragment: Fragment, addToBackStack: Boolean) {
+    fun loadFragment(fragment: Fragment, addToBackStack: Boolean) {
         if (window.currentFocus != null) {
             val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             imm.hideSoftInputFromWindow(window.currentFocus!!.windowToken, 0)
