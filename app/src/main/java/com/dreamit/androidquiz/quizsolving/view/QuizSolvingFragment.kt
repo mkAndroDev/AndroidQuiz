@@ -73,14 +73,13 @@ class QuizSolvingFragment : Fragment(), QuizSolvingContract.View, QuizAnswersAda
         this.quizDetails = quizSolve.quizDetails?.let {
             it
         } ?: QuizDetails()
-        if (quizDetails.questions.size >= 0)
-            if (status == STATUS_NEW) {
-                clearQuiz()
-                showQuizAnswer(quizDetails.questions.first())
-            } else {
-                val indexOfLastChecked = quizSolve.userAnswers.size
-                showQuizAnswer(quizDetails.questions[indexOfLastChecked])
-            }
+        if (status == STATUS_NEW) {
+            presenter.clearQuizSolve(quizSolve)
+            showQuizAnswer(quizDetails.questions.first())
+        } else {
+            val indexOfLastChecked = quizSolve.userAnswers.size
+            showQuizAnswer(quizDetails.questions[indexOfLastChecked])
+        }
     }
 
     private fun showNextQuestion() {
@@ -117,8 +116,8 @@ class QuizSolvingFragment : Fragment(), QuizSolvingContract.View, QuizAnswersAda
     }
 
     private fun finishQuizSolving() {
+        presenter.clearQuizSolve(quizSolve)
         showFinishMessage()
-        clearQuiz()
         openQuizzesFragment()
     }
 
@@ -141,11 +140,6 @@ class QuizSolvingFragment : Fragment(), QuizSolvingContract.View, QuizAnswersAda
             }
         }
         Toast.makeText(context, ratesTitle, Toast.LENGTH_SHORT).show()
-    }
-
-    private fun clearQuiz() {
-        quizSolve.userAnswers.clear()
-        presenter.saveQuizSolve(quizSolve)
     }
 
     private fun openQuizzesFragment() {

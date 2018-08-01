@@ -14,6 +14,8 @@ interface QuizSolvingContract {
         fun getQuizSolve(quizId: Long)
 
         fun saveQuizSolve(quizSolve: QuizSolve)
+
+        fun clearQuizSolve(quizSolve: QuizSolve)
     }
 
 }

@@ -24,4 +24,10 @@ class QuizSolvingPresenter(
     override fun saveQuizSolve(quizSolve: QuizSolve) {
         quizSolveRepository.saveQuizSolve(quizSolve)
     }
+
+    override fun clearQuizSolve(quizSolve: QuizSolve) {
+        saveQuizSolve(quizSolve.apply {
+            userAnswers.clear()
+        })
+    }
 }
