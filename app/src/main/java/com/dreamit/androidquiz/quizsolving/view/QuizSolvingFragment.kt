@@ -125,10 +125,8 @@ class QuizSolvingFragment : Fragment(), QuizSolvingContract.View, QuizAnswersAda
         var validQuestionsCount = 0
 
         quizSolve.userAnswers.forEach { userAnswer ->
-            val answers = quizDetails.questions[userAnswer.questionId]?.answers
-            answers?.let {
-                val validAnswer = it.first { it.isCorrect == 1 }
-                if (userAnswer.answerId == answers.indexOf(validAnswer)) {
+            quizDetails.questions[userAnswer.questionId]?.answers?.let {
+                if (QuizRatesUtils.isAnswerCorrect(userAnswer.answerId, it)) {
                     validQuestionsCount++
                 }
             }
@@ -136,12 +134,8 @@ class QuizSolvingFragment : Fragment(), QuizSolvingContract.View, QuizAnswersAda
 
         var ratesTitle = getString(R.string.quiz_solving_finish_rate) + " $validQuestionsCount"
         val validQuestionsAsPercent = QuizRatesUtils.getValidResultAsPercent(validQuestionsCount, quizDetails.questions.size)
+        ratesTitle += QuizRatesUtils.getRateText(validQuestionsAsPercent, quizDetails.rates)
 
-        quizDetails.rates.forEach {
-            if (validQuestionsAsPercent in it.from..it.to) {
-                ratesTitle += ", ${it.content}"
-            }
-        }
         Toast.makeText(context, ratesTitle, Toast.LENGTH_SHORT).show()
     }
 
