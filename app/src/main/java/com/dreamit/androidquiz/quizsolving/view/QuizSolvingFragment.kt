@@ -132,7 +132,7 @@ class QuizSolvingFragment : Fragment(), QuizSolvingContract.View, QuizAnswersAda
             }
         }
 
-        var ratesTitle = getString(R.string.quiz_solving_finish_rate) + " $validQuestionsCount"
+        var ratesTitle = getString(R.string.quiz_solving_finish_rate) + " $validQuestionsCount "
         val validQuestionsAsPercent = QuizRatesUtils.getValidResultAsPercent(validQuestionsCount, quizDetails.questions.size)
         ratesTitle += QuizRatesUtils.getRateText(validQuestionsAsPercent, quizDetails.rates)
 
