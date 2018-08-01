@@ -18,6 +18,7 @@
     <string name="quiz_details_description_go_back">Wróć do Quizu</string>
     <string name="quiz_details_description_start">Rozpocznij Quiz</string>
 
+    <string name="quiz_solving_empty_error">Quiz jest pusty!</string>
     <string name="quiz_solving_name_label">Pytanie:</string>
     <string name="quiz_solving_answers_label">Odpowiedzi:</string>
     <string name="quiz_solving_finish_rate">Poprawnych odpowiedzi:</string>

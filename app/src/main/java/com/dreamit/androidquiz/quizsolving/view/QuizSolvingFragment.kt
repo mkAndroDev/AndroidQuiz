@@ -14,6 +14,7 @@ import com.dreamit.androidquiz.R
 import com.dreamit.androidquiz.data.quizSolve.QuizSolveRepository
 import com.dreamit.androidquiz.data.quizSolve.local.LocalQuizSolveRepository
 import com.dreamit.androidquiz.quizitem.model.Question
+import com.dreamit.androidquiz.quizitem.model.QuizDetails
 import com.dreamit.androidquiz.quizlist.view.QuizzesFragment
 import com.dreamit.androidquiz.quizsolving.QuizSolvingContract
 import com.dreamit.androidquiz.quizsolving.adapter.QuizAnswersAdapter
@@ -33,6 +34,7 @@ class QuizSolvingFragment : Fragment(), QuizSolvingContract.View, QuizAnswersAda
         QuizSolvingPresenter(quizSolveRepository, this)
     }
     private lateinit var quizSolve: QuizSolve
+    private lateinit var quizDetails: QuizDetails
     private var quizAnswersAdapter = QuizAnswersAdapter(this)
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -68,70 +70,85 @@ class QuizSolvingFragment : Fragment(), QuizSolvingContract.View, QuizAnswersAda
             max = quizSolve.quizDetails?.questions?.size ?: 0
         }
         this.quizSolve = quizSolve
-        if (status == STATUS_NEW) {
-            showQuizAnswer(quizSolve.quizDetails!!.questions.first()!!)
-            quizSolve.userAnswers.clear()
-            presenter.saveQuizSolve(quizSolve)
-        } else {
-            val indexOfLastChecked = quizSolve.userAnswers.size
-            showQuizAnswer(quizSolve.quizDetails!!.questions[indexOfLastChecked]!!)
-        }
+        this.quizDetails = quizSolve.quizDetails?.let {
+            it
+        } ?: QuizDetails()
+        if (quizDetails.questions.size >= 0)
+            if (status == STATUS_NEW) {
+                clearQuiz()
+                showQuizAnswer(quizDetails.questions.first())
+            } else {
+                val indexOfLastChecked = quizSolve.userAnswers.size
+                showQuizAnswer(quizDetails.questions[indexOfLastChecked])
+            }
     }
 
     private fun showNextQuestion() {
         val answersIndex = pb_quiz_solving.progress
-
-        if (pb_quiz_solving.progress == quizSolve.quizDetails!!.questions.lastIndex + 1) {
-            showFinish()
+        if (pb_quiz_solving.progress == quizDetails.questions.lastIndex + 1) {
+            finishQuizSolving()
         } else {
-            showQuizAnswer(quizSolve.quizDetails!!.questions[answersIndex]!!)
+            showQuizAnswer(quizDetails.questions[answersIndex])
         }
     }
 
-    private fun showQuizAnswer(question: Question) {
-        pb_quiz_solving.apply {
-            progress = quizSolve.quizDetails!!.questions.indexOf(question) + 1
-        }
-        tv_quiz_solving_name.text = if (question.text.isNotEmpty()) question.text else question.text
-
-        question.image?.let {
-            if (it.url.isNotEmpty()) {
-                Picasso.get()
-                        .load(it.url)
-                        .fit()
-                        .centerCrop()
-                        .into(iv_quiz_solving_image)
+    private fun showQuizAnswer(question: Question?) {
+        question?.let {
+            pb_quiz_solving.apply {
+                progress = quizDetails.questions.indexOf(question) + 1
             }
-        }
+            tv_quiz_solving_name.text = if (question.text.isNotEmpty()) question.text else question.text
 
-        quizAnswersAdapter = QuizAnswersAdapter(this).apply {
-            changeAnswers(question.answers)
-        }
-        rv_quiz_solve_answers.adapter = quizAnswersAdapter
+            question.image?.let {
+                if (it.url.isNotEmpty()) {
+                    Picasso.get()
+                            .load(it.url)
+                            .fit()
+                            .centerCrop()
+                            .into(iv_quiz_solving_image)
+                }
+            }
+
+            quizAnswersAdapter = QuizAnswersAdapter(this).apply {
+                changeAnswers(question.answers)
+            }
+            rv_quiz_solve_answers.adapter = quizAnswersAdapter
+        } ?: showError(getString(R.string.quiz_solving_empty_error))
     }
 
-    private fun showFinish() {
+    private fun finishQuizSolving() {
+        showFinishMessage()
+        clearQuiz()
+        openQuizzesFragment()
+    }
+
+    private fun showFinishMessage() {
         var validQuestionsCount = 0
 
         quizSolve.userAnswers.forEach {
-
-            val validAnswer = quizSolve.quizDetails!!.questions.first { it.isValid }
-            if (it.answerId == quizSolve.quizDetails!!.questions.indexOf(validAnswer)) {
+            val validAnswer = quizDetails.questions.first { it.isValid }
+            if (it.answerId == quizDetails.questions.indexOf(validAnswer)) {
                 validQuestionsCount++
             }
         }
 
         var ratesTitle = getString(R.string.quiz_solving_finish_rate) + " $validQuestionsCount"
-        val validQuestionsAsPercent = QuizRatesUtils.getValidResultAsPercent(validQuestionsCount, quizSolve.quizDetails!!.questions.size)
+        val validQuestionsAsPercent = QuizRatesUtils.getValidResultAsPercent(validQuestionsCount, quizDetails.questions.size)
 
-        quizSolve.quizDetails!!.rates.forEach {
+        quizDetails.rates.forEach {
             if (validQuestionsAsPercent in it.from..it.to) {
                 ratesTitle += ", ${it.content}"
             }
         }
         Toast.makeText(context, ratesTitle, Toast.LENGTH_SHORT).show()
+    }
+
+    private fun clearQuiz() {
         quizSolve.userAnswers.clear()
         presenter.saveQuizSolve(quizSolve)
+    }
+
+    private fun openQuizzesFragment() {
         activity?.let {
             (it as MainActivity).loadFragment(QuizzesFragment(), false)
         }
@@ -139,6 +156,7 @@ class QuizSolvingFragment : Fragment(), QuizSolvingContract.View, QuizAnswersAda
 
     override fun showError(error: String) {
         Log.e(TAG, error)
+        openQuizzesFragment()
     }
 
     override fun onQuizClicked(id: Int) {
