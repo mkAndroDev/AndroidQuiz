@@ -116,18 +116,21 @@ class QuizSolvingFragment : Fragment(), QuizSolvingContract.View, QuizAnswersAda
     }
 
     private fun finishQuizSolving() {
-        presenter.clearQuizSolve(quizSolve)
         showFinishMessage()
+        presenter.clearQuizSolve(quizSolve)
         openQuizzesFragment()
     }
 
     private fun showFinishMessage() {
         var validQuestionsCount = 0
 
-        quizSolve.userAnswers.forEach {
-            val validAnswer = quizDetails.questions.first { it.isValid }
-            if (it.answerId == quizDetails.questions.indexOf(validAnswer)) {
-                validQuestionsCount++
+        quizSolve.userAnswers.forEach { userAnswer ->
+            val answers = quizDetails.questions[userAnswer.questionId]?.answers
+            answers?.let {
+                val validAnswer = it.first { it.isCorrect == 1 }
+                if (userAnswer.answerId == answers.indexOf(validAnswer)) {
+                    validQuestionsCount++
+                }
             }
         }
 
