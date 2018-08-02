@@ -39,9 +39,12 @@ class QuizzesAdapter(
 
     fun addAll(newQuizzes: List<QuizItem>) {
         newQuizzes.forEach { quiz ->
-            add(quiz)
+            if (quizzes.map { it.id }.contains(quiz.id)) {
+                replace(quiz)
+            } else {
+                add(quiz)
+            }
         }
-        quizzes.distinctBy { Pair(it.id, it.createdAt) }
     }
 
     fun clear() {
@@ -62,6 +65,11 @@ class QuizzesAdapter(
             quizzes.removeAt(position)
             notifyItemRemoved(position)
         }
+    }
+
+    private fun replace(quiz: QuizItem) {
+        remove(quizzes.first { it.id == quiz.id })
+        add(quiz)
     }
 
     private fun getItem(position: Int): QuizItem {
