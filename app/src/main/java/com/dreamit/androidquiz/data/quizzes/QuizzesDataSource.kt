@@ -7,7 +7,7 @@ interface QuizzesDataSource {
 
     fun getQuizzes(): Observable<Quizzes>
 
-    fun getNextQuizzes(page: Int): Observable<Quizzes>
+    fun getNextQuizzes(startFrom: Int): Observable<Quizzes>
 
     fun saveQuizzes(quizzes: Quizzes)
 

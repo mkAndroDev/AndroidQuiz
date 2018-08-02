@@ -1,5 +1,6 @@
 package com.dreamit.androidquiz.quizsolving.view
 
+import android.app.AlertDialog
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
@@ -7,7 +8,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import com.dreamit.androidquiz.MainActivity
 import com.dreamit.androidquiz.QuizApp
 import com.dreamit.androidquiz.R
@@ -116,12 +116,6 @@ class QuizSolvingFragment : Fragment(), QuizSolvingContract.View, QuizAnswersAda
     }
 
     private fun finishQuizSolving() {
-        showFinishMessage()
-        presenter.clearQuizSolve(quizSolve)
-        openQuizzesFragment()
-    }
-
-    private fun showFinishMessage() {
         var validQuestionsCount = 0
 
         quizSolve.userAnswers.forEach { userAnswer ->
@@ -132,11 +126,22 @@ class QuizSolvingFragment : Fragment(), QuizSolvingContract.View, QuizAnswersAda
             }
         }
 
-        var ratesTitle = getString(R.string.quiz_solving_finish_rate) + " $validQuestionsCount "
+        var ratesTitle = getString(R.string.quiz_solving_finish_rate) + " $validQuestionsCount \n"
         val validQuestionsAsPercent = QuizRatesUtils.getValidResultAsPercent(validQuestionsCount, quizDetails.questions.size)
         ratesTitle += QuizRatesUtils.getRateText(validQuestionsAsPercent, quizDetails.rates)
+        showFinishDialog(ratesTitle)
+        presenter.clearQuizSolve(quizSolve)
+    }
 
-        Toast.makeText(context, ratesTitle, Toast.LENGTH_SHORT).show()
+    private fun showFinishDialog(message: String) {
+        AlertDialog.Builder(context)
+                .setTitle(R.string.quiz_solving_finish_label)
+                .setMessage(message)
+                .setPositiveButton(android.R.string.ok, { _, _ ->
+                    openQuizzesFragment()
+                })
+                .create()
+                .show()
     }
 
     private fun openQuizzesFragment() {

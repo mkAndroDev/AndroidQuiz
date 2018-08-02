@@ -3,6 +3,7 @@ package com.dreamit.androidquiz.quizlist.view
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -17,6 +18,7 @@ import com.dreamit.androidquiz.net.ConfigEndpoints
 import com.dreamit.androidquiz.net.RestClient
 import com.dreamit.androidquiz.quizitem.view.QuizDetailsFragment
 import com.dreamit.androidquiz.quizlist.QuizzesContract
+import com.dreamit.androidquiz.quizlist.adapters.EndlessScrollListener
 import com.dreamit.androidquiz.quizlist.adapters.QuizzesAdapter
 import com.dreamit.androidquiz.quizlist.model.Quizzes
 import com.dreamit.androidquiz.quizlist.presenter.QuizzesPresenter
@@ -29,6 +31,14 @@ class QuizzesFragment : Fragment(), QuizzesContract.View, QuizzesAdapter.OnQuizz
         QuizzesPresenter(quizRepo, this)
     }
     private val quizzesAdapter = QuizzesAdapter(this)
+    private lateinit var layoutManager: LinearLayoutManager
+    private val endlessPage: EndlessScrollListener by lazy {
+        object : EndlessScrollListener(layoutManager) {
+            override fun onLoadMore(startFrom: Int, totalItemsCount: Int, view: RecyclerView) {
+                presenter.getNextQuizzes(startFrom)
+            }
+        }
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -39,7 +49,7 @@ class QuizzesFragment : Fragment(), QuizzesContract.View, QuizzesAdapter.OnQuizz
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initPresenter()
-        initRecyclerView()
+        initViews()
 
         presenter.getQuizzes()
     }
@@ -52,16 +62,24 @@ class QuizzesFragment : Fragment(), QuizzesContract.View, QuizzesAdapter.OnQuizz
         quizRepo = QuizzesRepository(localQuizzesRepository, remoteQuizzesRepository)
     }
 
-    private fun initRecyclerView() {
+    private fun initViews() {
+        layoutManager = LinearLayoutManager(context)
         rv_quizzes.apply {
             setHasFixedSize(true)
-            layoutManager = LinearLayoutManager(context)
+            layoutManager = this@QuizzesFragment.layoutManager
             adapter = quizzesAdapter
+            addOnScrollListener(endlessPage)
         }
     }
 
     override fun showQuizzes(quizzes: Quizzes) {
-        quizzesAdapter.addMoreEntries(quizzes.items)
+        quizzesAdapter.resetQuizzes(quizzes.items)
+        endlessPage.resetState()
+    }
+
+    override fun showNextQuizzes(quizzes: Quizzes) {
+        quizzesAdapter.addAll(quizzes.items)
+        endlessPage.loading = true
     }
 
     override fun showError(error: String) {

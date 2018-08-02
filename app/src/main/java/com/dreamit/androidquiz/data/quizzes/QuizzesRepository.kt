@@ -14,20 +14,28 @@ class QuizzesRepository(
 
     override fun getQuizzes(): Observable<Quizzes> {
         return Observable.concat(
-                localQuizzesRepository.getQuizzes(),
                 remoteQuizzesRepository.getQuizzes().doOnNext {
-                    launch(UI) {
-                        if (it.items.isNotEmpty())
+                    if (it.items.isNotEmpty()) {
+                        launch(UI) {
                             localQuizzesRepository.saveQuizzes(it)
+                        }
                     }
-                }
-        )
+                },
+                localQuizzesRepository.getQuizzes())
     }
 
-    override fun getNextQuizzes(page: Int): Observable<Quizzes> {
-        return Observable.merge(
-                remoteQuizzesRepository.getNextQuizzes(page),
-                localQuizzesRepository.getNextQuizzes(page))
+    override fun getNextQuizzes(startFrom: Int): Observable<Quizzes> {
+        return Observable.concat(
+                remoteQuizzesRepository.getNextQuizzes(startFrom).doOnNext {
+                    if (it.items.isNotEmpty()) {
+                        launch(UI) {
+                            localQuizzesRepository.saveQuizzes(it.apply {
+                                quizzesFrom = startFrom.toLong()
+                            })
+                        }
+                    }
+                },
+                localQuizzesRepository.getNextQuizzes(startFrom))
     }
 
     override fun saveQuizzes(quizzes: Quizzes) {

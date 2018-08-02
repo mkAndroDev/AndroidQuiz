@@ -7,13 +7,15 @@ interface QuizzesContract {
     interface View {
         fun showQuizzes(quizzes: Quizzes)
 
+        fun showNextQuizzes(quizzes: Quizzes)
+
         fun showError(error: String)
     }
 
     interface Presenter {
         fun getQuizzes()
 
-        fun getNextQuizzes(page: Int)
+        fun getNextQuizzes(startFrom: Int)
     }
 
 }

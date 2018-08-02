@@ -15,13 +15,24 @@ class QuizzesPresenter(
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ quizzes ->
-                    view.showQuizzes(quizzes)
+                    if (quizzes.items.isNotEmpty()) {
+                        view.showQuizzes(quizzes)
+                    }
                 }, { error ->
                     view.showError(error.message.orEmpty())
                 })
     }
 
-    override fun getNextQuizzes(page: Int) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun getNextQuizzes(startFrom: Int) {
+        quizzesRepository.getNextQuizzes(startFrom)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({ quizzes ->
+                    if (quizzes.items.isNotEmpty()) {
+                        view.showNextQuizzes(quizzes)
+                    }
+                }, { error ->
+                    view.showError(error.message.orEmpty())
+                })
     }
 }

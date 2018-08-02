@@ -9,7 +9,7 @@ import io.realm.annotations.PrimaryKey
 open class Quizzes : RealmObject() {
 
     @PrimaryKey
-    var page: Long = 0
+    var quizzesFrom: Long = 0
     @Expose
     @SerializedName("count")
     var quizzesCount: Int = 0
@@ -18,6 +18,6 @@ open class Quizzes : RealmObject() {
     var items: RealmList<QuizItem> = RealmList()
 
     companion object {
-        const val QUIZZES_PAGE_NAME = "page"
+        const val QUIZZES_FROM_NAME = "quizzesFrom"
     }
 }

@@ -14,10 +14,10 @@ class LocalQuizzesRepository(private val localStorage: Realm) : QuizzesDataSourc
                 getQuizzesFromDatabase(0)
             }
 
-    private fun getQuizzesFromDatabase(page: Int): Quizzes =
+    private fun getQuizzesFromDatabase(startFrom: Int): Quizzes =
             runBlocking(UI) {
                 val quizzes = localStorage.where(Quizzes::class.java)
-                        .equalTo(Quizzes.QUIZZES_PAGE_NAME, page)
+                        .equalTo(Quizzes.QUIZZES_FROM_NAME, startFrom)
                         .findFirst()
 
                 quizzes?.let {
@@ -25,9 +25,9 @@ class LocalQuizzesRepository(private val localStorage: Realm) : QuizzesDataSourc
                 } ?: Quizzes()
             }
 
-    override fun getNextQuizzes(page: Int): Observable<Quizzes> =
+    override fun getNextQuizzes(startFrom: Int): Observable<Quizzes> =
             Observable.fromCallable {
-                getQuizzesFromDatabase(page)
+                getQuizzesFromDatabase(startFrom)
             }
 
     override fun saveQuizzes(quizzes: Quizzes) {
