@@ -9,11 +9,13 @@ import com.dreamit.androidquiz.quizlist.model.QuizItem
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.quizzes_item.view.*
 
+
 class QuizzesAdapter(
         private val listener: QuizzesAdapter.OnQuizzesAdapterListener
 ) : RecyclerView.Adapter<QuizzesAdapter.ViewHolder>() {
 
-    private var quizzes: List<QuizItem> = listOf()
+    private var quizzes: MutableList<QuizItem> = mutableListOf()
+    var isLoadingAdded = false
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val itemView = LayoutInflater.from(parent.context)
@@ -30,11 +32,44 @@ class QuizzesAdapter(
         return quizzes.size
     }
 
-    fun addMoreEntries(newQuizzes: List<QuizItem>) {
-        if (newQuizzes.isNotEmpty()) {
-            quizzes = newQuizzes
-            notifyDataSetChanged()
+    fun resetQuizzes(newQuizzes: List<QuizItem>) {
+        clear()
+        addAll(newQuizzes)
+    }
+
+    fun addAll(newQuizzes: List<QuizItem>) {
+        newQuizzes.forEach { quiz ->
+            add(quiz)
         }
+        quizzes.distinctBy { Pair(it.id, it.createdAt) }
+    }
+
+    fun clear() {
+        isLoadingAdded = false
+        while (itemCount > 0) {
+            remove(getItem(0))
+        }
+    }
+
+    private fun add(quiz: QuizItem) {
+        quizzes.add(quiz)
+        notifyItemInserted(quizzes.size - 1)
+    }
+
+    private fun remove(quiz: QuizItem) {
+        val position = quizzes.indexOf(quiz)
+        if (position > -1) {
+            quizzes.removeAt(position)
+            notifyItemRemoved(position)
+        }
+    }
+
+    private fun getItem(position: Int): QuizItem {
+        return quizzes[position]
+    }
+
+    private fun isQuizInQuizzes(quiz: QuizItem): Boolean {
+        return quizzes.map { it.id }.contains(quiz.id)
     }
 
     class ViewHolder(

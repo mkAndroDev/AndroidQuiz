@@ -18,5 +18,6 @@
     <string name="quiz_solving_empty_error">Quiz jest pusty!</string>
     <string name="quiz_solving_name_label">Pytanie:</string>
     <string name="quiz_solving_answers_label">Odpowiedzi:</string>
+    <string name="quiz_solving_finish_label">Twój wynik:</string>
     <string name="quiz_solving_finish_rate">Poprawnych odpowiedzi:</string>
 </resources>
