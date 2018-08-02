@@ -25,7 +25,7 @@ abstract class EndlessScrollListener(
             }
         }
 
-        if (loading && (totalItemCount > previousTotalItemCount)) {
+        if (loading && (totalItemCount >= previousTotalItemCount)) {
             loading = false
             previousTotalItemCount = totalItemCount
         }
